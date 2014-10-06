@@ -6,6 +6,7 @@ utilities for Linux kernel
 unpack_initramfs.py
 
 Based on updated script found at http://forum.xda-developers.com/wiki/index.php?title=Extract_initramfs_from_zImage
+
 The problem that it work too slow :)
 
 How to use this script: 
