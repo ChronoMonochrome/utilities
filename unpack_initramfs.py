@@ -30,6 +30,7 @@ def extract_cpio():
 			debug_print('fail during writing zImage')
 			return -2
 		try:
+			os.system("gunzip -qf kernel.gz")
 			kernel = open('./kernel','rb').read()
 			debug_print('successfully unpacked gzipd zImage')
 		except:
