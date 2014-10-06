@@ -1,6 +1,7 @@
 #!/usr/bin/python 
 
 import sys, os
+
 DEBUG = 1
 GZIP_MAGIC="\x1F\x8B\x08"
 LZ4_LEGACY_MAGIC='\x02\x21\x4c\x18'
@@ -27,12 +28,11 @@ def is_lz4d(s):
 
 def find_zimage_start(s):
 	global GZIP_MAGIC, LZ4_LEGACY_MAGIC
-	#if is_gziped(s):
-	#	res = s.find(GZIP_MAGIC), GZIP
-	# detecting GZIP format work incorrectly with LZ4 legacy format
 	if is_lz4d(s):
 		res = s.find(LZ4_LEGACY_MAGIC,
 		      s.find(LZ4_LEGACY_MAGIC)+1), LZ4 
+	elif is_gziped(s):
+		res = s.find(GZIP_MAGIC), GZIP
 	return res
 
 def extract_cpio():
@@ -49,19 +49,19 @@ def extract_cpio():
 	if (ZIMAGE_START >= 0): 
 		debug_print('found zImage at %d'%ZIMAGE_START)
 		try:
-			#if FORMAT == GZIP:
-			#	open('kernel.gz','wb').write(bootimg[ZIMAGE_START:])
 			if FORMAT == LZ4:
 				open('kernel.lz4','wb').write(bootimg[ZIMAGE_START:])
+			elif FORMAT == GZIP:
+				open('kernel.gz','wb').write(bootimg[ZIMAGE_START:])
 			debug_print('zImage was successfully extracted')
 		except:
 			debug_print('error occured when extracting zImage')
 			return -2
 		try:		
-			#if FORMAT == GZIP:
-			#	os.system("gunzip -qf kernel.gz")
 			if FORMAT == LZ4:
 				os.system("lz4c -d ./kernel.lz4 ./kernel")
+			if FORMAT == GZIP:
+				os.system("gunzip -qf kernel.gz")
 			kernel = open('./kernel','rb').read()
 			debug_print('successfully unpacked %sd zImage' % FORMAT)
 		except:
