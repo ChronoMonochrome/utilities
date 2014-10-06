@@ -7,6 +7,6 @@ utilities for Linux kernel
 
 How to use this script: 
 
-./unpack_initramfs.py boot.img
+./initramfs.py boot.img
 
 It will work only with gzip'd and lz4'd kernels with uncompressed ramdisk.
