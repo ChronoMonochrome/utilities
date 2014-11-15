@@ -34,7 +34,7 @@ echo "echo varm=$VARM_50_OPP > $LIVEOPP/arm_step$i" >> $SCRIPT
 done
 
 # 100 opp
-for i in `seq 13 21`
+for i in `seq 14 21`
 do
 step=`cat $LIVEOPP/arm_step$i | grep show | cut -d : -f 2`
 echo "# $step" >> $SCRIPT
