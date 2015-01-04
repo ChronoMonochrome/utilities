@@ -2,42 +2,45 @@
 
 import sys, os
 
-DEBUG = 1
-GZIP_MAGIC="\x1F\x8B\x08"
-LZO_MAGIC="\x89LZO\x00"
-LZ4_LEGACY_MAGIC='\x02\x21\x4c\x18'
-CPIO_MAGIC='070701'
-CPIO_END_SIG='TRAILER'
+if (len(sys.argv) < 2):
+	print("at least one parameter needed")
+	exit
+
+DEBUG = 1	
+FILE = "./%s" % sys.argv[1]
+DIR = "".join(FILE.split("/")[:-1]) + "/"
+GZIP_MAGIC = "\x1F\x8B\x08"
+LZO_MAGIC = "\x89LZO\x00"
+LZ4_LEGACY_MAGIC = '\x02\x21\x4c\x18'
+CPIO_MAGIC = '070701'
+CPIO_END_SIG = 'TRAILER'
 GZIP = 'gzip'
-LZO='lzo'
+LZO = 'lzo'
 LZ4 = 'lz4'
-UNKNOWN='?'
+UNKNOWN = '?'
+
+EXT = {LZO:LZO, LZ4:LZ4, GZIP:"gz"}
 
 def debug_print(s):
-	global DEBUG
 	if DEBUG:
 		os.system('echo %s'%s)
 		
 def is_gziped(s):
-	global GZIP_MAGIC
 	if s.find(GZIP_MAGIC):
 		return 1
 	return 0
 
 def is_lzod(s):
-	global LZO_MAGIC
 	if s.count(LZO_MAGIC) == 5:
 		return 1
 	return 0
 	
 def is_lz4d(s):
-	global LZ4_LEGACY_MAGIC
 	if s.count(LZ4_LEGACY_MAGIC) == 2:
 		return 1
 	return 0
 
 def find_zimage_start(s):
-	global GZIP_MAGIC, LZ4_LEGACY_MAGIC, LZO_MAGIC
 	if is_lzod(s):
 		res = s.find(LZO_MAGIC,
 		      s.find(LZO_MAGIC)+1), LZO
@@ -54,24 +57,23 @@ def extract_cpio():
 	debug_print('script started')
 	
 	try:
-		bootimg = open("./"+sys.argv[1],'rb').read()
+		bootimg = open(FILE,'rb').read()
 	except:
 		debug_print('error occured when reading boot.img')
 		return -1
 		
 	ZIMAGE_START, FORMAT = find_zimage_start(bootimg)
+	zimage_file = 'kernel.%s' % EXT[FORMAT]
 	if (ZIMAGE_START >= 0): 
 		debug_print('found zImage at %d'%ZIMAGE_START)
+		open(zimage_file,'wb').write(bootimg[ZIMAGE_START:])
 		
 		if FORMAT == LZO:
-			open('kernel.lzo','wb').write(bootimg[ZIMAGE_START:])
-			os.system("lzop -d ./kernel.lzo ./kernel")
+			os.system("lzop -d ./%s ./kernel" % zimage_file)
 		elif FORMAT == LZ4:
-			open('kernel.lz4','wb').write(bootimg[ZIMAGE_START:])
-			os.system("lz4c -dy ./kernel.lz4 ./kernel")
+			os.system("lz4c -dy ./%s ./kernel" % zimage_file)
 		elif FORMAT == GZIP:
-			open('kernel.gz','wb').write(bootimg[ZIMAGE_START:])
-			os.system("gunzip -qf kernel.gz")
+			os.system("gunzip -qf %s" % zimage_file)
 		else:
 			debug_print('Unknown format')
 			return -2
@@ -81,6 +83,7 @@ def extract_cpio():
 	else:
 		debug_print('zImage is not found')
 		return -4
+		
 	CPIO_START = kernel.find(CPIO_MAGIC)
 	CPIO_END = len(kernel)
 	#CPIO_START = len(kernel)-kernel[::-1].find(CPIO_MAGIC[::-1], kernel[::-1].find(CPIO_MAGIC[::-1])+1)
@@ -95,5 +98,20 @@ def extract_cpio():
 		debug_print('error occured when writing ramdisk')
 		return -5
 	debug_print('ramdisk was successfully extracted to initramfs.cpio!')
-		
+
+def clean():
+	for i in EXT.values():
+	      if os.path.exists(DIR + "kernel.%s" % i):
+		    debug_print("file kernel.%s removed" % i)
+		    os.remove(DIR + "kernel.%s" % i)
+		    
+	if os.path.exists(DIR + "kernel"):
+		    debug_print("file kernel removed")
+		    os.remove(DIR + "kernel")
+		    
+def pre_clean():
+	clean()
+	
+pre_clean()	
 extract_cpio() 
+clean()
