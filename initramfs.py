@@ -4,7 +4,7 @@ import sys, os
 
 if (len(sys.argv) < 2):
 	print("Usage %s boot.img" % sys.argv[0])
-	exit
+	exit()
 
 DEBUG = 1	
 FILE = "./%s" % sys.argv[1]
