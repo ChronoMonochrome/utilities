@@ -78,7 +78,7 @@ def extract_cpio():
 			return -2
 		
 		kernel = open('./kernel','rb').read()
-		debug_print('%sd zImage was successfully unpacked' % FORMAT)
+		debug_print('%sd zImage has been successfully unpacked' % FORMAT)
 	else:
 		debug_print('zImage is not found')
 		return -4
@@ -96,7 +96,7 @@ def extract_cpio():
 	else:
 		debug_print('error occured when writing ramdisk')
 		return -5
-	debug_print('ramdisk was successfully extracted to initramfs.cpio!')
+	debug_print('ramdisk has been successfully extracted to initramfs.cpio!')
 
 def clean():
 	for i in EXT.values():
