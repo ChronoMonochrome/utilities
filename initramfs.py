@@ -3,7 +3,7 @@
 import sys, os
 
 if (len(sys.argv) < 2):
-	print("at least one parameter needed")
+	print("Usage %s boot.img" % sys.argv[0])
 	exit
 
 DEBUG = 1	
@@ -11,7 +11,7 @@ FILE = "./%s" % sys.argv[1]
 DIR = "".join(FILE.split("/")[:-1]) + "/"
 GZIP_MAGIC = "\x1F\x8B\x08"
 LZO_MAGIC = "\x89LZO\x00"
-LZ4_LEGACY_MAGIC = '\x02\x21\x4c\x18'
+LZ4_LEGACY_MAGIC = '\x02\x21\x4c'
 CPIO_MAGIC = '070701'
 CPIO_END_SIG = 'TRAILER'
 GZIP = 'gzip'
@@ -26,7 +26,7 @@ def debug_print(s):
 		os.system('echo %s'%s)
 		
 def is_gziped(s):
-	if s.find(GZIP_MAGIC):
+	if s.find(GZIP_MAGIC) > 0:
 		return 1
 	return 0
 
@@ -36,7 +36,7 @@ def is_lzod(s):
 	return 0
 	
 def is_lz4d(s):
-	if s.count(LZ4_LEGACY_MAGIC) == 2:
+	if s[:10240].find(LZ4_LEGACY_MAGIC) > 0:
 		return 1
 	return 0
 
@@ -45,8 +45,7 @@ def find_zimage_start(s):
 		res = s.find(LZO_MAGIC,
 		      s.find(LZO_MAGIC)+1), LZO
 	elif is_lz4d(s):
-		res = s.find(LZ4_LEGACY_MAGIC,
-		      s.find(LZ4_LEGACY_MAGIC)+1,), LZ4 
+		res = s.find(LZ4_LEGACY_MAGIC,  s.find(LZ4_LEGACY_MAGIC) + 1), LZ4
 	elif is_gziped(s):
 		res = s.find(GZIP_MAGIC), GZIP
 	else:
