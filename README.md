@@ -5,8 +5,11 @@ utilities for Linux kernel
 
 1) initramfs.py
 
-How to use this script: 
+Description:
+  Extracts initramfs.cpio scripts from boot.img Linux kernel
+
+How to:
 
 ./initramfs.py boot.img
 
-It will work only with gzip'd and lz4'd kernels with uncompressed ramdisk.
+For now, only gzip and lz4-compressed kernels are supported
