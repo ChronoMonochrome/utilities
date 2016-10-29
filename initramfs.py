@@ -45,7 +45,7 @@ def find_zimage_start(s):
 		res = s.find(LZO_MAGIC,
 		      s.find(LZO_MAGIC)+1), LZO
 	elif is_lz4d(s):
-		res = s.find(LZ4_LEGACY_MAGIC,  s.find(LZ4_LEGACY_MAGIC) + 1), LZ4
+		res = s.find(LZ4_LEGACY_MAGIC), LZ4
 	elif is_gziped(s):
 		res = s.find(GZIP_MAGIC), GZIP
 	else:
